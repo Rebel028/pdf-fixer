@@ -5,6 +5,7 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -16,20 +17,34 @@ const inDir string = "." //todo: handle input
 var conf *model.Configuration = model.NewDefaultConfiguration()
 
 func main() {
-	files, err := os.ReadDir(inDir)
+	dirAbsPath, _ := filepath.Abs(inDir)
+	fmt.Printf("Checking files in %s\n"+
+		"Make sure you have backed up your files (just in case)\n"+
+		"Press Enter to start\n", dirAbsPath)
+
+	if _, err := fmt.Scanln(); err != nil {
+		log.Fatal(err)
+	}
+
+	err := filepath.WalkDir(inDir, func(path string, f fs.DirEntry, err error) error {
+		if err != nil {
+			// handle possible path err, just in case...
+			return err
+		}
+		if f.IsDir() || !strings.HasSuffix(f.Name(), ".pdf") {
+			return nil
+		}
+		fmt.Printf("Checking file %s...\n", path)
+		fixPdf(path)
+		return nil
+	})
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, f := range files {
-		if !strings.HasSuffix(f.Name(), ".pdf") {
-			continue
-		}
-		fmt.Printf("Checking file %s...\n", f.Name())
-		fullPath := filepath.Join(inDir, f.Name())
-		fixPdf(fullPath)
-	}
 	defer func() {
+		fmt.Println("Done! Press Enter to exit")
 		//wait for user input
 		if _, err = fmt.Scanln(); err != nil {
 			log.Fatal(err)
