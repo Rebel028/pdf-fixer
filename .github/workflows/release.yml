@@ -39,4 +39,4 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: "pdf-fixer.exe"
-          tag: "v${{env.tag}}"
+          tag: "${{env.tag}}"
