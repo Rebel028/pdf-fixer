@@ -1,0 +1,42 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Build and release new version of pdf-fixer
+
+# Controls when the action will run.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Explicit version tag starts with "v" Example: `v1.4.88`'
+        required: false
+        default: ''
+
+env:
+  tag: ${{github.event.inputs.tag}}
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+
+  build:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Build
+        run: go build -o pdf-fixer.exe
+
+      - name: create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "pdf-fixer.exe"
+          tag: "v${{env.tag}}"
