@@ -23,7 +23,7 @@ func main() {
 		"Press Enter to start\n", dirAbsPath)
 
 	if _, err := fmt.Scanln(); err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	err := filepath.WalkDir(inDir, func(path string, f fs.DirEntry, err error) error {
@@ -40,14 +40,14 @@ func main() {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	defer func() {
 		fmt.Println("Done! Press Enter to exit")
 		//wait for user input
 		if _, err = fmt.Scanln(); err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 	}()
 }
@@ -57,7 +57,7 @@ func fixPdf(inFile string) {
 		fmt.Printf("File %s is created in Quartz PDFContext, it needs to be fixed\n", inFile)
 		err := api.CollectFile(inFile, inFile, []string{"1-l"}, conf)
 		if err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 	}
 	fmt.Printf("File %s is ok\n", inFile)
@@ -66,7 +66,7 @@ func fixPdf(inFile string) {
 func needsFix(fileName string) bool {
 	reader, err := os.Open(fileName)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	defer reader.Close()
 
@@ -77,10 +77,10 @@ func needsFix(fileName string) bool {
 func getInfo(filename string, f *os.File) *pdfcpu.PDFInfo {
 	info, err := api.PDFInfo(f, filename, nil, conf)
 	if err != nil {
-		log.Fatalf("\"Error\": %v\n", err)
+		log.Panicf("\"Error\": %v\n", err)
 	}
 	if info == nil {
-		log.Fatal("Error: missing Info\n")
+		log.Panic("Error: missing Info\n")
 	}
 	return info
 }
